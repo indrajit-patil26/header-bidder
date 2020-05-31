@@ -10,7 +10,7 @@ exports.index = function(req, res) {
     query.sort([[sort_by, sort_type]]);
 
     query.exec(function (err, advertisements) {
-        res.render('index', { title: 'Indrajit\'s Advertisement Engine', error: err, advertisements: advertisements });
+        res.render('index', { title: 'Sample Advertisement Website', error: err, advertisements: advertisements });
     })
 };
 
