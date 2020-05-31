@@ -53,7 +53,7 @@ block content
                   var convertedAdvertisementIds = JSON.parse(localStorage.getItem("convertedAdvertisementIds"));
                   if(convertedAdvertisementIds == null) convertedAdvertisementIds = [];
                 }
-                fetch('http://localhost:3000/api/conversion/' + advertisement_id)
+                fetch('https://safe-sands-15808.herokuapp.com/api/conversion/' + advertisement_id)
                 .then(response => {
                   return response.json();
                 })
@@ -64,7 +64,7 @@ block content
             
             script.
               var advertisement_impression = async(advertisement_id) => {
-                fetch('http://localhost:3000/api/impression/' + advertisement_id)
+                fetch('https://safe-sands-15808.herokuapp.com/api/impression/' + advertisement_id)
                 .then(response => {
                   return response.json();
                 })
