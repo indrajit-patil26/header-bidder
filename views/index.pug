@@ -1,0 +1,81 @@
+extends layout
+
+block content
+  h1= title
+  h4 Welcome to my advertisement engine. Just click on an advertisement 
+    br
+    | you like which would redirect you to the advertiser's page.
+  h3 Here are some advertisements for you
+  if error
+    p Error getting dynamic content
+  else
+    ul
+      - advertisements.sort(function(a, b) {let cpi_value_1 = a.cpi_value; let cpi_value_2 = b.cpi_value;
+      - return (cpi_value_1 < cpi_value_2) ? 1 : (cpi_value_1 > cpi_value_2) ? -1 : 0;});
+
+      // Jade doesn't support access to session storage until it's done rendering and the html is loaded in the browser.
+      // So we cannot eleminate the advertisements that are already stored in local storage when they were clicked using Jade.
+      // Below was the code to do so, in case it was possible with Jade
+      //- script.
+      //-       var unconverted_advertisements = function(advertisements) {
+      //-         var convertedAdvertisementIds = JSON.parse(localStorage.getItem("convertedAdvertisementIds"));
+      //-         if(convertedAdvertisementIds == null) convertedAdvertisementIds = [];
+      //-         final_unconverted_advertisements = [];
+      //-         var unconverted_count = 0;
+      //-         for(var i = 0; i < advertisements.length; i++)
+      //-         {
+      //-           if(!convertedAdvertisementIds.contains(advertisements[i]))
+      //-           {
+      //-             final_unconverted_advertisements.push(advertisements[i]);
+      //-             unconverted_count++;
+      //-           }
+      //-           if(unconverted_count >= 2)
+      //-           {
+      //-             break;
+      //-           }
+      //-         }
+      //-         return final_unconverted_advertisements;
+      //-       }
+      //- - advertisements = unconverted_advertisements(advertisements);
+      if (advertisements.length)
+        - for(var i = 0; i < advertisements.length; i++)
+          if (i >= 2)
+            - break
+          li
+            script.
+              var advertisement_click = async(advertisement_id) => {
+                var convertedAdvertisementIds = JSON.parse(localStorage.getItem("convertedAdvertisementIds"));
+                if(convertedAdvertisementIds == null) convertedAdvertisementIds = [];
+                if(!convertedAdvertisementIds.includes(advertisement_id))
+                {
+                  convertedAdvertisementIds.push(advertisement_id);
+                  localStorage.setItem("convertedAdvertisementIds", JSON.stringify(convertedAdvertisementIds));
+                  var convertedAdvertisementIds = JSON.parse(localStorage.getItem("convertedAdvertisementIds"));
+                  if(convertedAdvertisementIds == null) convertedAdvertisementIds = [];
+                }
+                fetch('http://localhost:3000/api/conversion/' + advertisement_id)
+                .then(response => {
+                  return response.json();
+                })
+                .catch(error => {
+                  console.error('Error in API call:', error);
+                });
+              }
+            
+            script.
+              var advertisement_impression = async(advertisement_id) => {
+                fetch('http://localhost:3000/api/impression/' + advertisement_id)
+                .then(response => {
+                  return response.json();
+                })
+                .catch(error => {
+                  console.error('Error in API call:', error);
+                });
+              }
+            
+            h2 #{advertisements[i].description}
+            a(href=advertisements[i].advertiser_id.website_url, onClick = 'advertisement_click("' + advertisements[i]._id + '")')
+              img(src="/images/advertisement.jpg", onLoad = 'advertisement_impression("' + advertisements[i]._id + '")')
+            
+      else
+        li There are no advertisements to show.
